@@ -1,24 +1,23 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 import { ThemeConsumer } from '../contex/themeContex';
+import { loadCourses } from '../actions/coursesAction';
+import { loadAuthors } from '../actions/authorsAction';
 
-export default class home extends Component {
+class home extends Component {
   static propTypes = {
   }
 
   constructor(props) {
     super(props);
-    this.state = {
-        loading: false,
-        couresData: [],
-        authorsData: [],
-        error: false,
-    }
+    props.loadCourses();
+    props.loadAuthors();
    
   }
 
   componentDidMount = () => {
-    this.fetchData();
     console.log('componentDidMount');
   }
 
@@ -48,33 +47,24 @@ export default class home extends Component {
     console.log('componentDidCatch')
   }
 
-  fetchData = async () => {
-      try {
-            this.setState({ loading: true });
-            const loadCouses = fetch('http://localhost:3004/courses');
-            const loadAuthors = fetch('http://localhost:3004/authors');
-            const res = await Promise.all([loadCouses, loadAuthors]);
-            const couresData = await res[0].json();
-            const authorsData = await res[1].json();
-            this.setState({loading: false, couresData, authorsData });
-        } catch (error) {
-            this.setState({loading: false, error });
-        }
-  }
+  
 
   displayAuthorName = (id) => {
-      const {authorsData} = this.state;
-      const author = authorsData.find(x => x.id === id);
+      const {authors: { data }} = this.props;
+      const author = data.find(x => x.id === id);
       if(!author)  return '';
       return `${author.firstName} ${author.lastName}`;
   }
   
   render() {
-    const {loading, couresData, authorsData, error} = this.state;
-    if(loading) {
+    const {authors, courses} = this.props;
+
+    console.log(authors);
+    console.log(courses);
+    if(courses.loading) {
         return (<h2>Loding Data...</h2>);
     }
-    if(error) {
+    if(courses.error) {
         return (<h2>Oops! something went worong!!!</h2>);
     }
     return (
@@ -94,7 +84,7 @@ export default class home extends Component {
             </thead>
             <tbody>
                 {
-                    couresData && couresData.map((item) => (<tr key={item.id}>
+                    courses && courses.data && courses.data.map((item) => (<tr key={item.id}>
                         <td>{item.title}</td>
                         <td><a href={item.watchHref}>Course Link</a></td>
                         <td>{this.displayAuthorName(item.authorId)}</td>
@@ -109,3 +99,16 @@ export default class home extends Component {
     )
   }
 }
+
+const mapStateToProps = (state) => ({
+    authors: state.authors,
+    courses: state.courses
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    loadCourses: () => loadCourses()(dispatch),
+    loadAuthors: () => loadAuthors()(dispatch)
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(home);

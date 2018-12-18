@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { ThemeConsumer } from '../contex/themeContex';
 
 export default class home extends Component {
   static propTypes = {
@@ -77,8 +78,10 @@ export default class home extends Component {
         return (<h2>Oops! something went worong!!!</h2>);
     }
     return (
-      <div>
+        <ThemeConsumer>
+      {(data) => <div>
         <h1>Courses</h1>
+        <h1>{data.value}</h1>
         <table>
             <thead>
                 <tr>
@@ -101,7 +104,8 @@ export default class home extends Component {
                 }
             </tbody>
         </table>
-      </div>
+      </div>}
+      </ThemeConsumer>
     )
   }
 }

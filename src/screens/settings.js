@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { ThemeConsumer } from '../contex/themeContex';
 
 export default class settings extends Component {
   static propTypes = {
@@ -7,9 +8,12 @@ export default class settings extends Component {
 
   render() {
     return (
-      <div>
+        <ThemeConsumer>
+      {(data) => <div>
         <h1>Settings</h1>
-      </div>
+        <h1>{data.value}</h1>
+      </div>}
+      </ThemeConsumer>
     )
   }
 }
